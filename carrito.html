@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Carrito de Compras</h2>
+        <div id="cart-items"></div>
+        <div class="total" id="total-price"></div>
+        <button id="checkout">Proceder al Pago</button>
+        <button id="back" onclick="goBack()">Volver a la Tienda</button>
+    </div>
+
+    <script>
+        const cartItemsContainer = document.getElementById('cart-items');
+        const totalPriceContainer = document.getElementById('total-price');
+        const checkoutButton = document.getElementById('checkout');
+
+        // Cargar productos del carrito
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let totalPrice = 0;
+
+        function updateCart() {
+            cartItemsContainer.innerHTML = '';
+            totalPrice = 0;
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p>Tu carrito está vacío.</p>';
+            } else {
+                cart.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.classList.add('product-item');
+                    itemDiv.innerHTML = `
+                        <img src="${item.image}" alt="${item.name}">
+                        <div>
+                            <span>${item.name}</span>
+                            <span>$${item.price}</span>
+                            <button class="remove-button" onclick="removeItem(${index})">Eliminar</button>
+                        </div>
+                    `;
+                    cartItemsContainer.appendChild(itemDiv);
+                    totalPrice += parseFloat(item.price);
+                });
+                totalPriceContainer.innerHTML = `Total: $${totalPrice}`;
+            }
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCart();
+        }
+
+        checkoutButton.addEventListener('click', function() {
+            alert('Procediendo al pago...');
+            // Aquí puedes agregar lógica para el proceso de pago
+        });
+
+        function goBack() {
+            window.location.href = 'index.html'; // Cambia 'index.html' por el nombre de tu página principal
+        }
+
+        // Inicializar el carrito
+        updateCart();
+    </script>
+</body>
+</html>

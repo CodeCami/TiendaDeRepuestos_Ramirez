@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda de Repuestos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to right, #000000, #434343);
+            color: red;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #filters {
+            margin-bottom: 20px;
+        }
+        #products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .product {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            width: 200px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .product:hover {
+            transform: scale(1.05);
+        }
+        .product img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .add-to-cart {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: red;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .add-to-cart:hover {
+            background-color: darkred;
+        }
+        #go-to-cart {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: green;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        #go-to-cart:hover {
+            background-color: darkgreen;
+        }
+        input[type="text"], select {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, select:focus {
+            border-color: red;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Repuestos el "nombre genérico de vendedor de repuestos"</h1>
+        <input type="text" id="search" placeholder="Buscar repuestos...">
+    </header>
+    
+    <section id="filters">
+        <h2>Filtros</h2>
+        <label for="category">Categoría:</label>
+        <select id="category">
+            <option value="todos">Todos</option>
+            <option value="frenos">Frenos</option>
+            <option value="motor">Motor</option>
+            <option value="transmision">Transmisión</option>
+        </select>
+        
+        <label for="sort">Ordenar por precio:</label>
+        <select id="sort">
+            <option value="default">Seleccione</option>
+            <option value="asc">Más barato a más caro</option>
+            <option value="desc">Más caro a más barato</option>
+        </select>
+    </section>
+
+    <section id="products">
+        <h2>Productos</h2>
+        <!-- Aquí irán los productos -->
+    </section>
+
+    <a id="go-to-cart" href="carrito.html">Ir al Carrito</a>
+
+    <script>
+        const productsData = [
+            { name: "Disco de freno", price: 100, category: "frenos", image: "Discos-de-freno-6-e1589192883973.jpg" },
+            { name: "Motor V8", price: 300, category: "motor", image: "motor v8.webp" },
+            { name: "Transmisión automática", price: 400, category: "transmision", image: "caja automatica.jpg" },
+            { name: "Pastillas de freno", price: 150, category: "frenos", image: "pastillas.jpg" },
+            { name: "Motor V6", price: 250, category: "motor", image: "v6.jpg" },
+            { name: "Transmisión manual", price: 500, category: "transmision", image: "caja manual.png" },
+            { name: "Pastillas de freno caras", price: 500, category: "transmision", image: "pastillas.jpg" },
+            { name: "Motor Diesel", price: 400, category: "motor", image: "motor diesel.png" },
+            { name: "Transmisión híbrida", price: 600, category: "transmision", image: "caja hibrida.jpg" }
+        ];
+
+        const productsContainer = document.getElementById('products');
+
+        function renderProducts(products) {
+            productsContainer.innerHTML = '<h2>Productos</h2>';
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'product';
+                productDiv.setAttribute('data-category', product.category);
+                productDiv.setAttribute('data-price', product.price);
+                productDiv.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>Precio: <strong>$${product.price}</strong></p>
+                    <button class="add-to-cart" data-name="${product.name}" data-price="${product.price}" data-image="${product.image}">Agregar al Carrito</button>
+                `;
+                productsContainer.appendChild(productDiv);
+            });
+        }
+
+        function filterAndSortProducts() {
+            const searchText = document.getElementById('search').value.toLowerCase();
+            const selectedCategory = document.getElementById('category').value;
+            const selectedSort = document.getElementById('sort').value;
+
+            let filteredProducts = productsData.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchText);
+                const matchesCategory = selectedCategory === 'todos' || product.category === selectedCategory;
+                return matchesSearch && matchesCategory;
+            });
+
+            if (selectedSort === 'asc') {
+                filteredProducts.sort((a, b) => a.price - b.price);
+            } else if (selectedSort === 'desc') {
+                filteredProducts.sort((a, b) => b.price - a.price);
+            }
+
+            renderProducts(filteredProducts);
+        }
+
+        document.getElementById('search').addEventListener('input', filterAndSortProducts);
+        document.getElementById('category').addEventListener('change', filterAndSortProducts);
+        document.getElementById('sort').addEventListener('change', filterAndSortProducts);
+
+        renderProducts(productsData); // Renderiza los productos al inicio
+
+        // Agregar al carrito
+        productsContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('add-to-cart')) {
+                const button = event.target;
+                const product = {
+                    name: button.getAttribute('data-name'),
+                    price: button.getAttribute('data-price'),
+                    image: button.getAttribute('data-image')
+                };
+                addToCart(product);
+            }
+        });
+
+        function addToCart(product) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.push(product);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert(`${product.name} ha sido agregado al carrito.`);
+        }
+    </script>
+</body>
+</html>
